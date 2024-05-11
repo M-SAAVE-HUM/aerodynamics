@@ -9,11 +9,13 @@ If you haven't used Git or Github before, check out these tutorials: [Git Tutori
 ## Folder Information
 **AVL**: contains AVL ([Athena Vortex Lattice](https://web.mit.edu/drela/Public/web/avl/)) run and mass files, images of plots, and data from run cases.
 
+**Airfoils**: contains .dat and .txt files of airfoil coordinates.
+
 **MATLAB**: contains MATLAB scripts and functions.
 
 **Python**: contains Python files, for optimization/[AeroSandbox](https://github.com/peterdsharpe/AeroSandbox) use.
 
-**Airfoils**: contains .dat and .txt files of airfoil coordinates.
+**CFD**: contains CAD/CFD files, data from simulations.
 
 ## Team Information
 
