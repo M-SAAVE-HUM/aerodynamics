@@ -1,5 +1,5 @@
 # NACA Airfoil Plotter
-# Kabir Khwaja, 6/10/24
+# Kabir Khwaja, 6/22/24
 
 # INPUTS: NACA Airfoil number, number of points desired
 # OUTPUTS: plot, point file
