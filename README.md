@@ -19,6 +19,6 @@ If you haven't used Git or Github before, check out these tutorials: [Git Tutori
 
 ## Team Information
 
-For further team contact reach out to: msaave.officers@umich.edu
+For further team contact reach out to: msaave.interest@umich.edu
 
 Instagram: @msaave_umich
