@@ -1,5 +1,5 @@
 # [M-SAAVE](https://www.msaave.com/) ✈️
-**Michigan Sustainability Applications for Aerospace Vehicle Engineering (M-SAAVE)** is a project team at the University of Michigan started by students that care about sustainability and humanitarian aerospace missions. 
+**Michigan Sustainability Applications for Aerospace Vehicle Engineering (M-SAAVE)** is a project team at the University of Michigan started by students passionate about sustainability and humanitarian aerospace missions. 
 
 ## Getting Started
 This repository keeps track of files used by the Aerodynamics Subteam, for design and analysis.
