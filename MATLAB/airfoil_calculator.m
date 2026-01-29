@@ -28,9 +28,9 @@ close all
 airfoil_type = 'naca';          % set airfoil type (naca or coords)
 number = num2str(6412);         % set the airfoil number
 %number = load('ch10.txt');     % OR import coordinates
-alpha = 0;                      % cruise angle of attack
-Uinf = 24;                      % cruise speed in m/s
-AR = 6.5;                       % aspect ratio
+alpha = deg2rad(12);            % cruise angle of attack
+Uinf = 22;                      % cruise speed in m/s
+AR = 8;                         % aspect ratio
 
 % input a desired Lift to determine span required
 g = 9.81;                       % gravity (m/s^2)
@@ -49,7 +49,7 @@ rho = 1.225; % air density (kg/m^3)
 gamma = 1.4; % specific heat ratio
 R = 287.185; % specific gas constant (J/kgK)
 T = 288.15; % temperature (K)
-Re = 10^6; % Reynold's number
+Re = 750000; % Reynold's number
 Mach = Uinf / sqrt(gamma*R*T); % Mach number
 
 %% 2: kfid <3
@@ -100,10 +100,11 @@ CDi = CL^2/(pi*AR)*(1+delta); % induced drag
 % b = sqrt((2*L) / (pi * rho * A1 * Uinf^2)) % span (meters) yippeeee!!!
 % c = span/AR % chord (meters)
 
-% point collocation lift distribution
+% point collocation sectional lift distribution
 theta = linspace(0, pi, 100);
 Y = -b/2 * cos(theta);
 lift = (2*b*rho*Uinf^2) .* (A1.*sin(theta) + A3.*sin(3*theta));
+cl_dist = lift./(0.5*rho*0.5*Uinf^2);
 CL_dist = (((pi*AR)./sin(theta)) .* (A1.*sin(theta) + A3.*sin(3*theta)));
 
 %% 4: aerodynamics is such a drag :(
@@ -111,7 +112,8 @@ CL_dist = (((pi*AR)./sin(theta)) .* (A1.*sin(theta) + A3.*sin(3*theta)));
 % parasitic drag calculated using wetted area approximation, uses drag
 % estimator function
 
-[CD0, CDi_est, CD_est, D_est] = drag_estimator(rho,Uinf,Re,e,AR,S,mass); 
+%[CD0, CDi_est, CD_est, D_est] = drag_estimator(rho,Uinf,Re,e,AR,S,mass); 
+CD0 = 0.0286;
 CD = CDi + CD0; % total aircraft drag
 
 %% 5: i love data!!!
@@ -187,45 +189,38 @@ m.setoper('Re', Re)
 nexttile
 m.solve 
 
-% main plot
-figure(2);
-tcl = tiledlayout(2,2);
+% sectional lift vs y - plot vs. elliptical
+fig2 = figure(2);
+y_dist = linspace(-1.5, 1.5, 3001);
+cl_chord_max_ellipse = 2 * 0.57 * 1.5 / (pi * 1.5);
+elliptical = cl_chord_max_ellipse * sqrt(1 - (y_dist ./ 1.5).^2) .* (0.5*rho*Uinf^2);
 
-% drag polar plot
-% hexadecimal line color :)
-nexttile
-plot(co_drag, co_lift, 'Color', "#1AA640", 'Linewidth', 1.5);
-title('Drag Polar (-15 to 15 degrees AoA)')
-xlabel('Drag Coefficient (CD)');
-ylabel('Lift Coefficient (CL)');
-grid on;
+hold on;
+plot(Y, lift, 'b-', 'Linewidth', 2);
+plot(y_dist, elliptical, 'k--', 'Linewidth', 2);
+xlabel('Span location, $y$ [$m$]', 'Interpreter', 'latex', 'FontSize', 16);
+ylabel('Sectional Lift [$N/m$]', 'Interpreter', 'latex', 'FontSize', 16);
+legend('Initial Design Wing', 'Elliptical', 'Interpreter', 'latex', 'Location', 'northeast')
+hold off;
+saveas(fig2, 'Lprime.eps', 'epsc');
 
-% lift distribution
-nexttile
-plot(Y, lift, 'b-', 'Linewidth', 1.5);
-title('Lift Distribution Across Wing')
-xlabel('y (location along span, m)');
-ylabel('Lift (N)');
-grid on;
+% sectional lift coefficient vs y
+fig3 = figure(3);
+hold on;
+plot(Y, cl_dist, 'r-', 'Linewidth', 2);
+yline(1.65, 'k--', 'Linewidth', 2)
+xlabel('Span location, $y$ [$m$]', 'Interpreter', 'latex', 'FontSize', 16);
+ylabel('Sectional Lift Coefficient, $C_l$', 'Interpreter', 'latex', 'FontSize', 16);
+legend('Spanwise $C_l$', 'NACA 6412 $C_{l,max}$', 'Interpreter', 'latex', 'Location', 'northeast')
+hold off;
+saveas(fig3, 'cl_dist.eps', 'epsc');
 
-% CL distribution
-nexttile
-plot(alphas, co_lift, 'r-', 'Linewidth', 1.5);
-title('Lift Coefficient vs. Angle of Attack')
-xlabel('Alpha (degrees)');
-ylabel('Coefficient of Lift (CL)');
-grid on;
-
-% L/D
-nexttile
-plot(alphas, lift_drag_ratio, 'k-', 'Linewidth', 1.5);
-title('Lift to Drag Ratio vs. Angle of Attack')
-xlabel('Alpha (degrees)');
-ylabel('CL/CD');
-grid on;
-
-s = strcat('Aerodynamics of NACA6412 Airfoil');
-title(tcl, s)
+% drag polar
+fig4 = figure(4);
+plot(co_drag, co_lift, 'b', 'Linewidth', 2);
+xlabel('Drag Coefficient, $C_D$', 'Interpreter', 'latex', 'FontSize', 16);
+ylabel('Lift Coefficient, $C_L$', 'Interpreter', 'latex', 'FontSize', 16);
+saveas(fig4, 'drag_polar.eps', 'epsc');
 
 % reports
 W = sprintf('At alpha = %s, CL = %s, Lift = %s N', ...

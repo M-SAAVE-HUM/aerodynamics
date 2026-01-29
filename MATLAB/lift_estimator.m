@@ -1,5 +1,4 @@
 %% Lift Estimator
-% made with love by Kabir <3
 
 % inputs: aspect ratio (AR), speed (v), wing area (S), air density (rho),
 % angle of attack (alpha), zero-lift angle of attack (a0) - in degrees

@@ -1,0 +1,25 @@
+%% Lifting Line Calculator
+% uses lifting line theory to calculate drag polar for given geometry
+
+% inputs
+% AR
+% airfoil
+% airfoil stall angle
+% speed
+% reynolds number
+
+% outputs
+% L vs y, cl vs y, cd vs cl plots
+% CL and L, CD and D at 0 aoa
+% CL max and angle
+% Max L/D and angle
+
+% along the way
+% lifting line at cruise and many other angles
+% estimates for parasitic drag
+
+disp(repmat('-', 1, 60));
+disp('Results!')
+disp(repmat('-', 1, 60));
+disp('At aoa = °, CL = , L = N')
+disp('At aoa = °, CD = , L = N')

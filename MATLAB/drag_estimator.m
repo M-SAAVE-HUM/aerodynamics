@@ -17,7 +17,7 @@ function[CD0, CDi, CD, D] = drag_estimator(rho, u, Re, e, AR, S, m)
     g = 9.81; % gravity (m/s^2)
     W = m * g; % weight (N)
     CL = W/(0.5 * rho * u^2 * S); % lift coefficient
-    Cf = 0.455 / (log10(Re))^2.58; % skin friction coefficient
+    Cf = 0.0576 / (Re)^0.2; % skin friction coefficient
     K = 1/(pi*AR*e); % induced drag factor
     Q = 2; % interference (fudge) factor
 
@@ -43,8 +43,10 @@ function[CD0, CDi, CD, D] = drag_estimator(rho, u, Re, e, AR, S, m)
     % outputs
     CD0 = (Cf*Q/S) * ( (FF_wing * S_wetwing) + (FF_tail * S_wettail) ...
         + (FF_fuselage * S_wetfuse)); % parasitic drag
+
+    % ^ compare this to CD0 from NX surface area
     CDi = K*(CL)^2; % induced drag
     CD = CD0 + CDi; % total craft drag
-    D = 0.5*rho*S*CD*u^2; %drag
+    D = 0.5*rho*S*CD*u^2; % drag
 
 end
