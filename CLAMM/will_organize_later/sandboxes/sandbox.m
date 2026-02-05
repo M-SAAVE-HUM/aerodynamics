@@ -98,7 +98,7 @@ wing.Sref = 0.8013;       % Reference planform area [m^2]
 wing.AR = 7.87;           % Aspect Ratio [-]
 wing.taper1 = 1.0;        % Taper ratio 1 (c_root/c_mid-station) [-]
 wing.taper2 = 0.5;        % Taper ratio 2 (c_mid-station/c_tip) [-]
-wing.btaper = 0.5;        % Half-span fraction of mid-station
+wing.btaper = 0.4;        % Half-span fraction of mid-station
 wing.dihedral1 = 0.0;     % Dihedral of root-mid-span section [deg]
 wing.dihedral2 = 0.0;     % Dihedral of mid-span-tip section [deg]
 wing.incidence = 0.0;     % Angle of incidence of wing relative to fuselage centerline [deg]
@@ -124,7 +124,7 @@ wing.CDCL_tip = af.CDCL;
 % Then run the function to generate the file in your directory (folder is
 % currently useless but working on it).
 
-name = 'test';      % Name of your geometry file
+name = 't05_b04';      % Name of your geometry file
 template = 'template_3.avl';    % The template to use (this one)
 folder = '\wing_things\';       % Useless for now...
 
