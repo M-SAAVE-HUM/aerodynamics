@@ -81,7 +81,7 @@ yLEh = ac.hstab.yLE;
 zLEh = ac.hstab.zLE;
 
 % Airfoil and aero model
-airfoilh = ac.hstab.airfoil.filename
+airfoilh = ac.hstab.airfoil.filename;
 CLAFh = ac.hstab.CLAF;
 CDCLh = ac.hstab.CDCL;
 
@@ -385,7 +385,7 @@ fid = fopen(filename,'w');
 fprintf(fid,"%s", output);
 fclose(fid);
 
-out = sprintf("Geometry file saved to %s\n",filename);
+out = sprintf("\tGeometry file saved to %s\n",filename);
 fprintf(out)
 
 

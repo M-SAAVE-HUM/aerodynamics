@@ -18,9 +18,9 @@ t = tiledlayout(3,3);
 ax1 = nexttile(1,[1 3]);
 hold on
 for i = 1:length(af)
-    try label = sprintf("%s, Re = %d, M = %.2f",string(af{i}.name), af{i}.Re, af{i}.Mach); plot(ax1,af{i}.x,af{i}.y,'DisplayName',label)
-    catch exception
-    end
+    label = sprintf("%s, Re = %d, M = %.2f",string(af{i}.name), af{i}.Re, af{i}.Mach);
+    plot(0,0,'displayName',label)
+
 end
 daspect(ax1,[1 1 1]);
 legend();
@@ -42,6 +42,8 @@ hold off
 hold on
 ax3 = nexttile(5);
 for i = 1:length(af)
+    af{1}.cd
+    af{1}.alpha
     plot(af{i}.alpha, af{i}.cd)
 end
 xlabel('$\alpha$ [deg]','interpreter','latex')
