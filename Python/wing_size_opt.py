@@ -15,7 +15,7 @@ density = 1.225  # density of air [kg/m^3]
 airfoil_thickness_fraction = 0.12  # airfoil thickness to chord ratio [-]
 
 # aerodynamic params
-airspeed_takeoff = 12  # takeoff speed [m/s]
+airspeed_takeoff = 14  # takeoff speed [m/s]
 oswalds_efficiency = 0.95  # Oswald efficiency factor [-]
 CL_max = 1.5  # max CL 
 wetted_area_ratio = 2  # wetted area ratio [-]
@@ -55,7 +55,7 @@ lift_cruise = dynamic_pressure * wing_area * CL
 lift_takeoff = 0.5 * density * wing_area * CL_max * airspeed_takeoff ** 2
 
 # Wing weight structural model
-W_W_coeff1 = 0.0005  # some number in units of 1/m, backed out using coeff_calc.py
+W_W_coeff1 = 0.0006  # some number in units of 1/m, backed out using coeff_calc.py
 weight_wing_structural = W_W_coeff1 * (
         ultimate_load_factor * aspect_ratio ** 1.5 *
         (weight_fuselage * weight * wing_area) ** 0.5
@@ -72,6 +72,7 @@ opti.subject_to([
     weight <= lift_takeoff, 
     weight == weight_fuselage + weight_wing, 
     span <= 2.5,
+    #weight/wing_area == 108.002
 ])
 
 # ----------

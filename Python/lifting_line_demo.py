@@ -52,13 +52,17 @@ def taper_sweep(lams, ARs):
 if __name__ == "__main__":
 
     # example wing with lift distributions plotted
-    test_wing = LLTWing.Wing(5, 8, 40, taper=0.42, plots=True, rho=1.225, Uinf=20, b=3)
-    test_wing.lifting_line()
+    # inputs: angle of attack, aspect ratio, number of unknowns, other options
+    test_wing_opt = LLTWing.Wing(6.25, 7.87, 40, plots=True, rho=1.225, Uinf=20.22, b=2.5)
+    test_wing_opt.lifting_line()
+
+    test_wing_1 = LLTWing.Wing(6.25, 7.87, 40, plots=True, rho=1.225, Uinf=20.22, b=2.5)
+    test_wing_1.lifting_line()
 
     # # sweep through aspect ratios for rectangular wings
-    ARs = np.array([4, 6, 8, 10])
-    ar_sweep_rect(ARs)
+    # ARs = np.array([4, 6, 8, 10])
+    # ar_sweep_rect(ARs)
 
     # # sweep through taper ratios for various ARs, compare e
-    lams = np.linspace(0.05, 1, 50)
-    taper_sweep(lams, ARs)
+    # lams = np.linspace(0.05, 1, 50)
+    # taper_sweep(lams, ARs)
