@@ -1,0 +1,143 @@
+test
+#Mach
+0.1
+#IYsym IZsym Zsym
+0 0 0.0
+#Sref Cref Bref
+0.801300 0.329941 2.511221
+#Xref Yref Zref
+0.141900 0.000000 0.000000
+
+#====================================================================
+#--------------------------------------------------------------------
+SURFACE
+[WING]
+!beginsurface
+#Nchordwise Cspace Nspanwise Sspace
+8 1.0 20 -2.0
+YDUPLICATE
+0.0
+ANGLE
+0.000000
+
+TRANSLATE
+0.000000 0.000000 0.000000
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.000000 0.000000 0.000000 0.364672 0.000000 12.0 1.0
+AFILE
+model_airplane/airfoils/e201.dat
+CDCL
+-0.4264 0.0263   0.3748 0.0082   1.2716 0.0596 
+CLAF
+1.098828
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.000000 0.627805 0.000000 0.364672 0.000000 12.0 1.0
+AFILE
+model_airplane/airfoils/e201.dat
+CDCL
+-0.4264 0.0263   0.3748 0.0082   1.2716 0.0596 
+CLAF
+1.098828
+CONTROL
+AILERON 1.0 0.780000 0. 0. 0. -1.0
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.036467 1.130049 0.087214 0.218803 0.000000 12.0 1.0
+AFILE
+model_airplane/airfoils/e201.dat
+CDCL
+-0.4264 0.0263   0.3748 0.0082   1.2716 0.0596 
+CLAF
+1.098828
+CONTROL
+AILERON 1.0 0.780000 0. 0. 0. -1.0
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.045584 1.255611 0.109017 0.182336 0.000000 12.0 1.0
+AFILE
+model_airplane/airfoils/e201.dat
+CDCL
+-0.4264 0.0263   0.3748 0.0082   1.2716 0.0596 
+CLAF
+1.098828
+
+#--------------------------------------------------------------------
+SURFACE
+[HSTAB]
+!beginsurface
+#Nchordwise Cspace Nspanwise Sspace
+6 1.0 10 -2.0
+YDUPLICATE
+0.0
+ANGLE
+0.000000
+
+TRANSLATE
+0.800000 0.000000 0.050000
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.000000 0.000000 0.000000 0.261808 0.000000 12.0 1.0
+NACA
+0012
+CDCL
+-1.1611 0.0369   0.0000 0.0071   1.1616 0.0369 0.0376 
+CLAF
+1.141079
+CONTROL
+ELEVATOR 1.0 0.600000 0. 0. 0. 1.0
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.032726 0.589068 0.000000 0.130904 0.000000 12.0 1.0
+NACA
+0012
+CDCL
+-1.1611 0.0369   0.0000 0.0071   1.1616 0.0369 0.0376 
+CLAF
+1.141079
+CONTROL
+ELEVATOR 1.0 0.200000 0. 0. 0. 1.0
+
+#--------------------------------------------------------------------
+SURFACE
+[VSTAB]
+!beginsurface
+#Nchordwise Cspace Nspanwise Sspace
+6 1.0 10 1.0
+ANGLE
+0.000000
+
+TRANSLATE
+0.800000 0.000000 0.000000
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.000000 0.000000 0.000000 0.198246 0.000000 12.0 1.0
+NACA
+0012
+CDCL
+-1.1611 0.0369   0.0000 0.0071   1.1616 0.0369 0.0376 
+CLAF
+1.141079
+CONTROL
+RUDDER 1.0 0.600000 0. 0. 0. 1.0
+
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+0.019825 0.000000 0.634388 0.118948 0.000000 12.0 1.0
+NACA
+0012
+CDCL
+-1.1611 0.0369   0.0000 0.0071   1.1616 0.0369 0.0376 
+CLAF
+1.141079
+CONTROL
+RUDDER 1.0 0.333333 0. 0. 0. 1.0
+

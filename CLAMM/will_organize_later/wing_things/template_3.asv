@@ -1,0 +1,60 @@
+{{NAME}}
+#Mach
+0.0
+#IYsym IZsym Zsym
+0 0 0.0
+#Sref Cref Bref
+{{Sref}} {{cbar}} {{bref}}
+#Xref Yref Zref
+{{Xref}} 0.0 0.0
+
+
+
+
+#====================================================================
+SURFACE
+[WING]
+!beginsurface
+#Nchordwise Cspace Nspanwise Sspace
+8 1.0 12 1.0
+#
+YDUPLICATE
+0.0
+#
+ANGLE
+0.0
+
+TRANSLATE
+# dX dY dZ
+{{dXw}} {{dYw}} {{dZw}}
+
+
+#-------------------------------------------------------------
+# Root
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+{{xroot}} {{yroot}} {{zroot}} {{croot}} {{troot}} 12.0 1.0
+AFILE
+{{aroot}}
+CDCL
+{{CDCL_root}}
+CLAF
+{{CLAF_root}}
+
+
+#-------------------------------------------------------------
+# Root
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+{{xmid}} {{ymid}} {{zmid}} {{cmid}} {{tmid}} 12.0 1.0
+AFILE
+{{amid}}
+
+
+#-------------------------------------------------------------
+# Tip
+SECTION
+#Xle Yle Zle Chord Ainc Nspanwise Sspace
+{{xtip}} {{ytip}} {{ztip}} {{ctip}} {{ttip}} 12.0 1.0
+AFILE
+{{atip}}
