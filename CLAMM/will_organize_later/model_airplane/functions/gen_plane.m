@@ -1,0 +1,445 @@
+function [] = gen_plane(ac,name,folder)
+% DESCRIPTION:
+%   Generates an AVL geometry file for a double-tapered wing.
+%   Assumes: no sweep, no geometric twist.
+%
+% INPUTS:
+%   wing -> struct of wing parameters (see below) [struct]
+%   name -> name of .avl file (e.g. "wing_1") [string]
+%   folder -> relative folder location for output file
+%
+% OUTPUT:
+%   [VOID] -> produces .avl file in specified folder
+%
+% CREATED:
+%   Andrew Painter, 2/3/26
+%
+% LAST MODIFIED:
+%   2/4/26
+
+%% Unload misc details
+
+Xref = ac.xcg;        % Reference x-coordinate for moment calculation [m]
+Yref = ac.ycg;        % Reference y-coordinate for moment calculation [m]
+Zref = ac.zcg;        % Reference z-coordinate for moment calculation [m]
+
+
+%% Unload wing variables
+
+Sref = ac.wing.Sref;       % Reference planform area [m^2]
+AR = ac.wing.AR;           % Aspect Ratio [-]
+taper1 = ac.wing.taper1;   % Taper ratio 1 (c_root/c_mid-station) [-]
+taper2 = ac.wing.taper2;   % Taper ratio 2 (c_mid-station/c_tip) [-]
+btaper = ac.wing.btaper;   % Half-span fraction of mid-station
+dihedral1  = ac.wing.dihedral1;    % Dihedral of root-mid-span section [deg]
+dihedral2  = ac.wing.dihedral2;    % Dihedral of mid-span-tip section [deg]
+incidence = ac.wing.incidence;     % Angle of incidence of wing relative to fuselage centerline [deg]
+bail_st = ac.wing.bail_st;   % Aileron start b/2 fraction [-]
+bail_end = ac.wing.bail_end; % Aileron end b/2 fraction [-]
+ca_c = ac.wing.ca_c;         % Aileron chord fraction [-]
+
+xLE = ac.wing.xLE;         % Root leading edge x-location
+yLE = ac.wing.yLE;         % Root leading edge y-location
+zLE = ac.wing.zLE;         % Root leading edge z-location
+
+% Root airfoil and aero model
+aroot = ac.wing.aroot;         % Root airfoil filename
+CLAF_root = ac.wing.CLAF_root; % Root airfoil lift-slope factor
+CDCL_root = ac.wing.CDCL_root;
+
+% Kink airfoil and aero model
+akink = ac.wing.akink;         % Kink airfoil filename
+CLAF_kink = ac.wing.CLAF_kink; 
+CDCL_kink = ac.wing.CDCL_kink;
+
+% Aileron start airfoil and aero model
+aail_st = ac.wing.aail_st;         % Ail st airfoil filename
+CLAF_ail_st = ac.wing.CLAF_ail_st; 
+CDCL_ail_st = ac.wing.CDCL_ail_st;
+
+% Aileron end airfoil and aero model
+aail_end = ac.wing.aail_end;         % Ail st airfoil filename
+CLAF_ail_end = ac.wing.CLAF_ail_end; 
+CDCL_ail_end = ac.wing.CDCL_ail_end;
+
+% Tip airfoil and aero model
+atip  = ac.wing.atip;          % Tip airfoil filename
+CLAF_tip = ac.wing.CLAF_tip;   % Tip airfoil drag polar
+CDCL_tip = ac.wing.CDCL_tip;
+
+
+%% Unload h-stab variables
+
+Sh = ac.hstab.Sref;
+ARh = ac.hstab.AR;
+taperh = ac.hstab.taper;
+dihedralh = ac.hstab.dihedral;
+incidenceh = ac.hstab.incidence;
+
+xLEh = ac.x; 
+yLEh = ac.hstab.yLE;
+zLEh = ac.hstab.zLE;
+
+% Airfoil and aero model
+airfoilh = ac.hstab.airfoil.name;
+CLAFh = ac.hstab.CLAF;
+CDCLh = ac.hstab.CDCL;
+
+% Elevator
+ce_crh = ac.hstab.ce_crh;
+
+
+%% Unload v-stab variables
+
+Sv = ac.vstab.Sref;
+ARv = ac.vstab.AR;
+taperv = ac.vstab.taper;
+
+xLEv = ac.xv; 
+yLEv = ac.vstab.yLE;
+zLEv = ac.vstab.zLE;
+
+% Airfoil and aero model
+airfoilv = ac.vstab.airfoil.name;
+CLAFv = ac.vstab.CLAF;
+CDCLv = ac.vstab.CDCL;
+
+% Rudder
+ce_crv = ac.vstab.ce_crv;
+    
+
+%% Wing Definitions
+
+b = sqrt(AR*Sref);      % Wingspan [m]
+b1 = btaper*b/2;        % Root-mid-span length [m]
+b2 = b/2 - b1;          % Mid-span-tip length [m]
+
+croot = Sref/(b1*(1+taper1) + b2*taper1*(1+taper2));  % Root chord length [m]
+ckink = taper1*croot;            % Chord length at mid-span kink [m]
+ctip = taper2*taper1*croot;      % Tip chord length [m]
+
+cbar1 = 2/3*croot*(1 + taper1 + taper1^2)/(1+taper1);   % MAC length for first section [m]
+S1 = b1*(croot+ckink);                        % Reference area of first section [m^2]
+cbar2 = 2/3*ckink*(1 + taper2 + taper2^2)/(1+taper2);    % MAC length for second section [m]
+S2 = b2*(ckink+ctip);                               % Reference area of second section [m^2]
+cbar = (cbar1*S1 + cbar2*S2)/Sref;                      % MAC length for whole wing [m]
+
+dXw  = xLE;     % x-translate wing surface
+dYw  = yLE;     % y-translate wing surface
+dZw  = zLE;     % z-translate wing surface
+
+
+%% Empennage Definitions
+
+bh = sqrt(ARh*Sh);      % Wingspan of hstab [m]
+crooth = 2*Sh/(bh*(1 + taperh));
+ctiph = crooth*taperh;
+
+
+bv = sqrt(ARv*Sv);
+crootv = 2*Sv/(bv*(1 + taperv));
+ctipv = crootv*taperv; 
+
+
+%% Define wing coordinates
+
+% Root
+yroot = 0.0;
+xroot = 0.0;
+zroot = 0.0;
+troot = 0.0;
+
+% Kink
+ykink = b1;
+xkink = 0.25*(croot - ckink);
+zkink = b1*sind(dihedral1);
+tkink  = 0.0;
+
+xhinge_ail = (1-ca_c); % Aileron hinge location from leading edge
+
+% Aileron start
+if bail_st ~= btaper    % If aileron start section isn't at the kink 
+    cail_st = (ctip - ckink)/(1 - btaper)*(bail_st - btaper) + ckink;
+    yail_st = b/2*bail_st;
+    xail_st = croot*0.25 - 0.25*cail_st;
+    zail_st = zkink + (yail_st - ykink)*sind(dihedral2);
+    tail_st = 0.0;
+end
+
+% Aileron end
+if bail_end ~= b/2    % If aileron end section isn't at the tip 
+    cail_end = (ctip - ckink)/(1 - btaper)*(bail_end - btaper) + ckink;
+    yail_end = b/2*bail_end;
+    xail_end = croot*0.25 - 0.25*cail_end;
+    zail_end = zkink + (yail_end - ykink)*sind(dihedral2);
+    tail_end = 0.0;
+end
+
+% Tip
+ytip = b/2;
+xtip = 0.25*(croot - ctip);
+ztip = zkink + b2*sind(dihedral2);
+ttip = 0.0;
+
+
+%% Define hstab coordinates
+
+% Root
+yrooth = 0.0;
+xrooth = 0.0;
+zrooth = 0.0;
+trooth = 0.0;
+xhingerooth = 1 - ce_crh;
+
+% Tip
+ytiph = bh/2;
+xtiph = 0.25*(crooth - ctiph);
+ztiph = bh/2*sind(dihedralh);
+ttiph = 0.0;
+xhingetiph = 1 - (ce_crh/taperh);
+
+
+%% Define vstab coordinates
+
+% Root
+yrootv = 0.0;
+xrootv = 0.0;
+zrootv = 0.0;
+trootv = 0.0;
+xhingerootv = 1 - ce_crv;
+
+% Tip
+ytipv = 0;
+xtipv = 0.25*(crootv - ctipv);
+ztipv = bv;
+ttipv = 0.0;
+xhingetipv = 1 - (ce_crv/taperv);
+
+
+%% Map replacements
+
+% Header
+header = string(sprintf([ ...
+'%s\n' ...
+'#Mach\n' ...
+'0.1\n' ...
+'#IYsym IZsym Zsym\n' ...
+'0 0 0.0\n' ...
+'#Sref Cref Bref\n' ...
+'%.6f %.6f %.6f\n' ...
+'#Xref Yref Zref\n' ...
+'%.6f %.6f %.6f\n\n' ...
+'#====================================================================\n' ...
+], name, Sref, cbar, b, Xref, Yref, Zref));
+
+% Wing surface definition
+surface = string(sprintf([ ...
+'#--------------------------------------------------------------------\n' ...
+'SURFACE\n' ...
+'[WING]\n' ...
+'!beginsurface\n' ...
+'#Nchordwise Cspace Nspanwise Sspace\n' ...
+'8 1.0 20 -2.0\n' ...
+'YDUPLICATE\n' ...
+'0.0\n' ...
+'ANGLE\n' ...
+'%.6f\n\n' ...
+'TRANSLATE\n' ...
+'%.6f %.6f %.6f\n\n' ...
+], incidence, dXw, dYw, dZw));
+
+sections = {};
+
+% Root
+sections{end+1} = avlSection( ...
+    xroot, yroot, zroot, croot, troot, ...
+    aroot, CDCL_root, CLAF_root, [] );
+
+aileron.name = 'AILERON';
+aileron.xhinge = xhinge_ail;
+aileron.sgndup = -1.0;
+
+% Kink
+if bail_st == btaper
+    sections{end+1} = avlSection( ...
+        xkink, ykink, zkink, ckink, tkink, ...
+        akink, CDCL_kink, CLAF_kink, aileron);
+else
+    sections{end+1} = avlSection( ...
+        xkink, ykink, zkink, ckink, tkink, ...
+        akink, CDCL_kink, CLAF_kink, []);
+end
+
+% Aileron start
+if bail_st ~= btaper
+    sections{end+1} = avlSection( ...
+        xail_st, yail_st, zail_st, cail_st, tail_st, ...
+        aail_st, CDCL_ail_st, CLAF_ail_st, aileron);
+end
+
+% Aileron end
+if bail_end ~= b/2
+    sections{end+1} = avlSection( ...
+        xail_end, yail_end, zail_end, cail_end, tail_end, ...
+        aail_end, CDCL_ail_end, CLAF_ail_end, aileron);
+end
+
+% Tip
+if bail_end == b/2
+    sections{end+1} = avlSection( ...
+        xtip, ytip, ztip, ctip, ttip, ...
+        atip, CDCL_tip, CLAF_tip, aileron);
+else
+    sections{end+1} = avlSection( ...
+        xtip, ytip, ztip, ctip, ttip, ...
+        atip, CDCL_tip, CLAF_tip, [] );
+end
+
+
+% Hstab surface definition
+surfaceh = string(sprintf([ ...
+'#--------------------------------------------------------------------\n' ...
+'SURFACE\n' ...
+'[HSTAB]\n' ...
+'!beginsurface\n' ...
+'#Nchordwise Cspace Nspanwise Sspace\n' ...
+'6 1.0 10 -2.0\n' ...
+'YDUPLICATE\n' ...
+'0.0\n' ...
+'ANGLE\n' ...
+'%.6f\n\n' ...
+'TRANSLATE\n' ...
+'%.6f %.6f %.6f\n\n' ...
+], incidenceh, xLEh, yLEh, zLEh));
+
+
+sectionsh = {};
+
+elevatorr.name = 'ELEVATOR';
+elevatorr.xhinge = xhingerooth;
+elevatorr.sgndup = 1.0;
+sectionsh{end+1} = avlSection( ...
+    xrooth, yrooth, zrooth, crooth, trooth, ...
+    airfoilh, CDCLh, CLAFh, elevatorr);
+
+elevatort.name = 'ELEVATOR';
+elevatort.xhinge = xhingetiph;
+elevatort.sgndup = 1.0;
+sectionsh{end+1} = avlSection( ...
+    xtiph, ytiph, ztiph, ctiph, ttiph, ...
+    airfoilh, CDCLh, CLAFh, elevatort);
+
+
+
+% Vstab surface definition
+surfacev = string(sprintf([ ...
+'#--------------------------------------------------------------------\n' ...
+'SURFACE\n' ...
+'[VSTAB]\n' ...
+'!beginsurface\n' ...
+'#Nchordwise Cspace Nspanwise Sspace\n' ...
+'6 1.0 10 1.0\n' ...
+'ANGLE\n' ...
+'%.6f\n\n' ...
+'TRANSLATE\n' ...
+'%.6f %.6f %.6f\n\n' ...
+], 0.0, xLEv, yLEv, zLEv));
+
+
+sectionsv = {};
+
+rudderr.name = 'RUDDER';
+rudderr.xhinge = xhingerootv;
+rudderr.sgndup = 1.0;
+sectionsv{end+1} = avlSection( ...
+    xrootv, yrootv, zrootv, crootv, trootv, ...
+    airfoilv, CDCLv, CLAFv, rudderr);
+
+ruddert.name = 'RUDDER';
+ruddert.xhinge = xhingetipv;
+ruddert.sgndup = 1.0;
+sectionsv{end+1} = avlSection( ...
+    xtipv, ytipv, ztipv, ctipv, ttipv, ...
+    airfoilv, CDCLv, CLAFv, ruddert);
+
+
+% Assemble
+% [sectionsh{:}; sectionsv{:}]
+
+% [surfacev; sectionsv{:}]
+
+% [header; surface; sections(:); surfaceh; sectionsh(:); surfacev; sectionsv(:)]
+output = strjoin(string([header; surface; sections(:); surfaceh; sectionsh(:); surfacev; sectionsv(:)]),"");
+
+
+
+%% Output file
+
+if ~isfolder(folder)
+    mkdir(folder);
+end
+
+
+filename = folder + "/" + name + ".avl";
+fid = fopen(filename,'w');
+fprintf(fid,"%s", output);
+fclose(fid);
+
+out = sprintf("\tGeometry file saved to %s\n",filename);
+fprintf(out)
+
+
+%% Helpers
+
+function txt = avlSection(x, y, z, c, ainc, afile, CDCL, CLAF, controls)
+    txt = "";
+    if ~contains(lower(afile),'naca')
+        txt = string(sprintf([ ...
+        'SECTION\n' ...
+        '#Xle Yle Zle Chord Ainc Nspanwise Sspace\n' ...
+        '%.6f %.6f %.6f %.6f %.6f 12.0 1.0\n' ...
+        'AFILE\n' ...
+        '%s\n' ...
+        ], x, y, z, c, ainc, afile));
+    
+        if ~isempty(CDCL)
+            txt = txt + sprintf("CDCL\n%s\n", CDCL);
+        end
+    
+        if ~isempty(CLAF)
+            txt = txt + sprintf("CLAF\n%.6f\n", CLAF);
+        end
+    else
+        NACA = strtrim(strrep(lower(afile),'naca',''));
+        txt = string(sprintf([ ...
+        'SECTION\n' ...
+        '#Xle Yle Zle Chord Ainc Nspanwise Sspace\n' ...
+        '%.6f %.6f %.6f %.6f %.6f 12.0 1.0\n' ...
+        'NACA\n' ...
+        '%s\n' ...
+        ], x, y, z, c, ainc, NACA));
+    
+        if ~isempty(CDCL)
+            txt = txt + sprintf("CDCL\n%s\n", CDCL);
+        end
+    
+        if ~isempty(CLAF)
+            txt = txt + sprintf("CLAF\n%.6f\n", CLAF);
+        end
+    end
+
+    % Control surfaces
+    if nargin == 9 && ~isempty(controls)
+        c = controls;
+        txt = txt + string(sprintf([ ...
+            'CONTROL\n' ...
+            '%s 1.0 %.6f 0. 0. 0. %.1f\n' ...
+        ], c.name, c.xhinge, c.sgndup));
+    end
+
+    txt = txt + newline;
+
+end
+
+
+end
