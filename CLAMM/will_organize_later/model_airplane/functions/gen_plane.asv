@@ -81,7 +81,7 @@ yLEh = ac.hstab.yLE;
 zLEh = ac.hstab.zLE;
 
 % Airfoil and aero model
-airfoilh = ac.hstab.airfoil.filename
+airfoilh = ac.hstab.airfoil.name;
 CLAFh = ac.hstab.CLAF;
 CDCLh = ac.hstab.CDCL;
 
@@ -100,7 +100,7 @@ yLEv = ac.vstab.yLE;
 zLEv = ac.vstab.zLE;
 
 % Airfoil and aero model
-airfoilv = ac.vstab.airfoil.filename;
+airfoilv = ac.vstab.airfoil.name;
 CLAFv = ac.vstab.CLAF;
 CDCLv = ac.vstab.CDCL;
 
@@ -410,9 +410,7 @@ function txt = avlSection(x, y, z, c, ainc, afile, CDCL, CLAF, controls)
             txt = txt + sprintf("CLAF\n%.6f\n", CLAF);
         end
     else
-        naca = regexp(afile,'NACA(\d+)','tokens','once');
-        NACA = naca{1};
-        
+        NACA = strtrim(strrep(lower(afile),'naca',''));
         txt = string(sprintf([ ...
         'SECTION\n' ...
         '#Xle Yle Zle Chord Ainc Nspanwise Sspace\n' ...

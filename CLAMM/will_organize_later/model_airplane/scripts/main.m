@@ -66,6 +66,9 @@ name = "test";
 file = 'model_airplane/airfoils/e201.txt'; % Pacc file
 af = read_pacc(file); % Save into .mat file
 
+file = 'model_airplane/airfoils/NACA0012.txt'; % Pacc file
+af = read_pacc(file); % Save into .mat file
+
 
 %% Produce aircraft
 

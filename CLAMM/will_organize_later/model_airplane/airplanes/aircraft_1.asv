@@ -69,7 +69,7 @@ wing.CLAF_ail_end = wing.airfoil_ail_end.CLAF;
 wing.CDCL_ail_end = wing.airfoil_ail_end.CDCL;
 % Tip
 wing.airfoil_tip = wing.airfoil_root;
-wing.atip = wing.airfoil_tip.filename;
+wing.atip = wing.airfoil_tip.name;
 wing.CLAF_tip = wing.airfoil_tip.CLAF;
 wing.CDCL_tip = wing.airfoil_tip.CDCL;
 
