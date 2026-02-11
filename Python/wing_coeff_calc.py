@@ -1,11 +1,11 @@
 # calculate wing weight coefficient value for asb optimization
 
 # Known values from gonk as reference wing
-weight_wing_known = 5.0  # kg
-ultimate_load_factor_known = 4.0  # typical? idk check this
+weight_wing_known = 4.7  # kg
+ultimate_load_factor_known = 3.5  # typical? idk check this
 aspect_ratio_known = 6.0
-weight_fuselage_known = 13.0  # kg
-weight_total_known = 17.0  # kg (aircraft total weight)
+weight_fuselage_known = 15.0  # kg
+weight_total_known = 19.7  # kg (aircraft total weight)
 wing_area_known = 1.5  # m^2
 airfoil_thickness_fraction_known = 0.12  # 12% thick airfoil
 

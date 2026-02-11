@@ -11,28 +11,29 @@ from scipy.optimize import fsolve
 
 # environmental params
 viscosity = 1.78e-5  # viscosity of air [kg/m/s]
-density = 1.225  # density of air [kg/m^3]
+density = 1.1952  # density of air [kg/m^3]
 airfoil_thickness_fraction = 0.12  # airfoil thickness to chord ratio [-]
 
 # aerodynamic params
-airspeed_takeoff = 14  # takeoff speed [m/s]
+stall_speed = 12 # stall speed [m/s]
+airspeed_takeoff = stall_speed*1.1  # takeoff speed [m/s]
 oswalds_efficiency = 0.95  # Oswald efficiency factor [-]
-CL_max = 1.5  # max CL 
+CL_max = 1.6  # max CL 
 wetted_area_ratio = 2  # wetted area ratio [-]
 form_factor = 1.2  # form factor [-]
 #airspeed = 20 # m/s -- try setting this as constant or as a design variable
 
 # structural params
 ultimate_load_factor = 3.5  # ultimate load factor [-]
-weight_fuselage = 8 * 9.81  # kg -> N
+weight_fuselage = 10 * 9.81  # kg -> N
 
 # ----------
 # Variables
 # ----------
 opti = asb.Opti()  # initialize an optimization environment
 
-aspect_ratio = opti.variable(init_guess=10, lower_bound=4, upper_bound=20)  # aspect ratio
-wing_area = opti.variable(init_guess=1, lower_bound=0.25, upper_bound=5)  # total wing area [m^2]
+aspect_ratio = opti.variable(init_guess=6.55, lower_bound=4, upper_bound=20)  # aspect ratio
+wing_area = opti.variable(init_guess=0.92, lower_bound=0.25, upper_bound=5)  # total wing area [m^2]
 airspeed = opti.variable(init_guess=25, lower_bound=15, upper_bound=30)  # cruising speed [m/s]
 weight = opti.variable(init_guess=100, lower_bound=20, upper_bound=500)  # total aircraft weight [N]
 CL = opti.variable(init_guess=1, lower_bound=0.3, upper_bound=1.4)  # Lift coefficient of wing [-]
@@ -52,10 +53,11 @@ CD = CD_profile + CD_induced
 dynamic_pressure = 0.5 * density * airspeed ** 2
 drag = dynamic_pressure * wing_area * CD
 lift_cruise = dynamic_pressure * wing_area * CL
+lift_stall = 0.5 * density * wing_area * CL_max * stall_speed ** 2
 lift_takeoff = 0.5 * density * wing_area * CL_max * airspeed_takeoff ** 2
 
 # Wing weight structural model
-W_W_coeff1 = 0.0006  # some number in units of 1/m, backed out using coeff_calc.py
+W_W_coeff1 = 0.000521  # some number in units of 1/m, backed out using coeff_calc.py
 weight_wing_structural = W_W_coeff1 * (
         ultimate_load_factor * aspect_ratio ** 1.5 *
         (weight_fuselage * weight * wing_area) ** 0.5
@@ -69,10 +71,9 @@ weight_wing = weight_wing_surface + weight_wing_structural
 # ----------
 opti.subject_to([
     weight == lift_cruise, 
-    weight <= lift_takeoff, 
+    weight <= lift_stall,
     weight == weight_fuselage + weight_wing, 
     span <= 2.5,
-    #weight/wing_area == 108.002
 ])
 
 # ----------
@@ -115,6 +116,7 @@ print(f"  Induced Drag = {sol_di:.2f} N, CDi = {sol_di / (q*sol_area)}")
 print(f"  Parasitic Drag = {sol_d0:2f} N, CDO = {sol_d0 / (q*sol_area)}")
 print(f"  Takeoff lift = {sol.value(lift_takeoff):.2f} N")
 print(f"  Cruise lift = {sol.value(lift_cruise):.2f} N")
+print(f"  Stall lift = {sol.value(lift_stall):.2f} N")
 print(f"\nWeight:")
 print(f"  Total weight = {sol_weight_kg:.2f} kg ({sol.value(weight):.2f} N)")
 print(f"  Wing weight = {sol_wing_weight_kg:.2f} kg ({sol.value(weight_wing):.2f} N)")
@@ -172,13 +174,13 @@ for i in range(AR_grid.shape[0]):
         # Lift constraint → CL
         CL = W / (q * S)
 
-        if CL < 0.3 or CL > 1.4:
+        if CL < 0.3 or CL > 2.0:
             LD[i, j] = 0
             continue
 
-        # Takeoff constraint
-        L_to = 0.5 * density * S * CL_max * airspeed_takeoff**2
-        if W > L_to:
+        # stall constraint
+        L_stall = 0.5 * density * S * CL_max * stall_speed**2
+        if W > L_stall:
             LD[i, j] = 0
             continue
 
