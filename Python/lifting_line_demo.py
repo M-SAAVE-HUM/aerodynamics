@@ -53,11 +53,11 @@ if __name__ == "__main__":
 
     # example wing with lift distributions plotted
     # inputs: angle of attack, aspect ratio, number of unknowns, other options
-    test_wing_opt = LLTWing.Wing(6.25, 7.87, 40, plots=True, rho=1.225, Uinf=20.22, b=2.5)
+    test_wing_opt = LLTWing.Wing(15, 8.18, 40, plots=True, rho=1.225, Uinf=23.47, b=2.5)
     test_wing_opt.lifting_line()
 
-    test_wing_1 = LLTWing.Wing(6.25, 7.87, 40, plots=True, rho=1.225, Uinf=20.22, b=2.5)
-    test_wing_1.lifting_line()
+    # test_wing_1 = LLTWing.Wing(6.25, 7.87, 40, plots=True, rho=1.225, Uinf=20.22, b=2.5)
+    # test_wing_1.lifting_line()
 
     # # sweep through aspect ratios for rectangular wings
     # ARs = np.array([4, 6, 8, 10])

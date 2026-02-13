@@ -15,10 +15,10 @@ density = 1.1952  # density of air [kg/m^3]
 airfoil_thickness_fraction = 0.12  # airfoil thickness to chord ratio [-]
 
 # aerodynamic params
-stall_speed = 12 # stall speed [m/s]
+stall_speed = 14 # stall speed [m/s]
 airspeed_takeoff = stall_speed*1.1  # takeoff speed [m/s]
 oswalds_efficiency = 0.95  # Oswald efficiency factor [-]
-CL_max = 1.6  # max CL 
+CL_max = 1.4  # max CL 
 wetted_area_ratio = 2  # wetted area ratio [-]
 form_factor = 1.2  # form factor [-]
 #airspeed = 20 # m/s -- try setting this as constant or as a design variable
@@ -26,6 +26,16 @@ form_factor = 1.2  # form factor [-]
 # structural params
 ultimate_load_factor = 3.5  # ultimate load factor [-]
 weight_fuselage = 10 * 9.81  # kg -> N
+
+# mass budget estimate: 
+# fuselage          = 3 kg         
+# tail              = 1 kg            
+# landing gear      = 0.5 kg
+# prop system       = 2.5 kg
+# avionics          = 1.5 kg 
+# payload           = 0.5 kg
+# margin            = 1 kg
+# TOTAL             = 10 kg
 
 # ----------
 # Variables

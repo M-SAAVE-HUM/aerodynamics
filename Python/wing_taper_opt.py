@@ -5,6 +5,14 @@ import aerosandbox.numpy as np
 import matplotlib.pyplot as plt
 import aerosandbox.tools.pretty_plots as p
 
+# Wing geometry
+b = 2.5        # full span [m]
+S = 0.806       # planform area [m^2]
+AR = b**2 / S
+v_cruise = 23.01 # m/s
+CL_cruise = 0.518
+
+# helpers
 def compute_oswald_efficiency_from_solution(sol, aero, AR):
     CL = sol(aero["CL"])
     CDi = sol(aero["CD"])
@@ -14,24 +22,19 @@ def run_lifting_line(airplane, alpha):
     return asb.LiftingLine(
         airplane=airplane,
         op_point=asb.OperatingPoint(
-            velocity=22.08,
+            velocity=v_cruise,
             alpha=alpha
         ),
         xyz_ref=[0, 0, 0],
     ).run()
-
-# Wing geometry
-b = 2.5        # full span [m]
-S = 0.628       # planform area [m^2]
-AR = b**2 / S
 
 ########## SHAPE OPTIMIZATION ##########
 
 # linear taper
 opti = asb.Opti()  # Initialize an optimization environment.
 N = 2  # Number of chord sections to optimize
-section_y = np.linspace(0, 1.25, N) # y locations, half span
-chords = opti.variable(init_guess=np.ones(N)*0.251) # All chords initially guessed as 0.251
+section_y = np.linspace(0, b/2, N) # y locations, half span
+chords = opti.variable(init_guess=np.ones(N)*0.306) # All chords initially guessed as 0.251
 
 wing_linTaper = asb.Wing(
     symmetric=True,
@@ -58,7 +61,7 @@ opti.subject_to([  # add constraints
     chords > 0.1,  # Chords should stay positive
     wing_linTaper.area() == S,  # fixed area
     np.diff(chords) <= 0, # change in chord from one section to the next should be negative
-    chords[0] <= 0.6096, # constrain root chord for manufacturing - 24" longest chord
+    chords[0] <= 0.75, # constrain root chord for manufacturing - 24" longest chord
 ])
 
 alpha = opti.variable(init_guess=5, lower_bound=0, upper_bound=30)
@@ -77,7 +80,7 @@ vlm = asb.VortexLatticeMethod(
 
 aero = vlm.run()
 opti.subject_to(
-    aero["CL"] == 0.603
+    aero["CL"] == CL_cruise
 )
 opti.minimize(aero["CD"]) # minimize drag!
 sol = opti.solve()
@@ -126,7 +129,7 @@ opti = asb.Opti()
 
 # Geometry parameters
 half_span = b / 2
-y_break = 0.2  # constant chord region length [m]
+y_break = 0.1  # constant chord region length [m]
 
 section_y_2 = np.array([0, y_break, half_span])
 
@@ -181,7 +184,7 @@ vlm_2 = asb.VortexLatticeMethod(
 
 aero_2 = vlm_2.run()
 
-opti.subject_to(aero_2["CL"] == 0.603)
+opti.subject_to(aero_2["CL"] == CL_cruise)
 opti.minimize(aero_2["CD"])
 
 sol_2 = opti.solve()

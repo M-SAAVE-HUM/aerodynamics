@@ -11,14 +11,14 @@ import aerosandbox.numpy as np
 import matplotlib.pyplot as plt
 import aerosandbox.tools.pretty_plots as p
 
-CL_multipoint_targets = np.array([0.8, 1.0, 1.2, 1.4, 1.5, 1.6])
-CL_multipoint_weights = np.array([5, 6, 7, 8, 9, 10])
+CL_multipoint_targets = np.array([0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.2, 1.4, 1.6])
+CL_multipoint_weights = np.array([0.075,0.075,0.25,0.15,0.15,0.075,0.075,0.05,0.05,0.05])
 
-Re = 500e3 * (CL_multipoint_targets / 1.25) ** -0.5
-mach = 0.03
+Re = 1000e3 * (CL_multipoint_targets / 1.25) ** -0.5
+mach = 0.06
 
-initial_guess_airfoil = asb.KulfanAirfoil("naca6412")
-initial_guess_airfoil.name = "Initial Guess (NACA6412)"
+initial_guess_airfoil = asb.KulfanAirfoil("naca4410")
+initial_guess_airfoil.name = "Initial Guess (NACA4410)"
 
 opti = asb.Opti()
 
@@ -87,9 +87,11 @@ sol = opti.solve(
 optimized_airfoil = sol(optimized_airfoil)
 aero = sol(aero)
 
-Re_plot = 500e3
+Re_plot = 1000e3
+alpha_plot = np.linspace(0, 15, 41)
 
-fig, ax = plt.subplots(2, 2, figsize=(7, 8))
+fig, ax = plt.subplots(2, 2, figsize=(4, 4))
+ax = ax.flatten()
 
 airfoils_and_colors = {
     "Initial Guess"           : (initial_guess_airfoil, "dimgray"),
@@ -111,7 +113,7 @@ for i, (name, (af, color)) in enumerate(airfoils_and_colors.items()):
     aero = af.get_aero_from_neuralfoil(
         Re=Re_plot,
         mach=mach,
-        alpha = np.linspace(0, 15, 41)
+        alpha=alpha_plot
     )
     ax[1].plot(
         aero["CD"], aero["CL"],  #"--",
@@ -120,13 +122,13 @@ for i, (name, (af, color)) in enumerate(airfoils_and_colors.items()):
         zorder=4 if "NeuralFoil" in name else 3,
     )
     ax[2].plot(
-        alpha, aero["CL"],  #"--",
+        alpha_plot, aero["CL"],  #"--",
         color=color, alpha=0.7,
         label=name,
         zorder=4 if "NeuralFoil" in name else 3,
     )
     ax[3].plot(
-        alpha, aero["CL"] / aero["CD"],  #"--",
+        alpha_plot, aero["CL"] / aero["CD"],  #"--",
         color=color, alpha=0.7,
         label=name,
         zorder=4 if "NeuralFoil" in name else 3,
